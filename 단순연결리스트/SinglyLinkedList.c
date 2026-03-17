@@ -51,8 +51,9 @@ int SinglyLinkedList_Ladd(SinglyLinkedList* list, SLL_Data data) {
 
 /*
 * tail에 node를 추가하는 함수 (left add)
+* 반환값: 실패 시 0, 성공 시 1 
 */
-void SinglyLinkedList_Radd(SinglyLinkedList* list, SLL_Data data) {
+int SinglyLinkedList_Radd(SinglyLinkedList* list, SLL_Data data) {
 	//새로운 노드 생성 및 값 대입
 	SinglyLinkedList_Node* newNode = (SinglyLinkedList_Node*)malloc(sizeof(SinglyLinkedList_Node));
 	if (newNode == NULL) {
@@ -79,12 +80,6 @@ void SinglyLinkedList_Radd(SinglyLinkedList* list, SLL_Data data) {
 	return True;
 }
 
-/*
-* 비교함수에 따라 노드를 위치에 삽입하는 함수
-*/
-void SinglyLinkedList_CmpInsert(SinglyLinkedList* list, SLL_Data data) {
-	//구현 필요		
-}
 
 /*
 * 현재 가르키는 노드를 삭제하는 함수
@@ -140,10 +135,55 @@ SLL_Data SinglyLinkedList_delete(SinglyLinkedList* list) {
 
 /*
 * n번째 index에 node를 삽입하는 함수 (0 포함)
+* cur는 해당 노드를 가르킨다.
 * 반환값: 0(실패) , 1(성공)
 */
-int SinglyLinkedList_insert(SinglyLinkedList* list, SLL_Data data, unsigned int n) {
-	//구현 필요		
+int SinglyLinkedList_insert(SinglyLinkedList* list, SLL_Data data, unsigned int index) {
+
+	//노드가 없었을 경우
+	if (index == 0 && list->length == 0) {
+		return SinglyLinkedList_Ladd(list, data);
+	}
+
+	if (index < 0 || index > list->length) { //index가 삽입 가능 범위에서 벗어났을 경우
+		return False;
+	}
+
+	//머리에 삽입
+	if (index == 0) {
+		return SinglyLinkedList_Ladd(list, data);
+		
+	}
+
+	//꼬리에 삽입
+	if (index == list->length) {
+		return SinglyLinkedList_Radd(list, data);
+	}
+
+
+	//중간에 삽입
+	
+	//cur를 바꿀 곳에 위치시키기
+	SinglyLinkedList_curFirst(list);
+	SLL_Data dummy;
+	for (int i = 0; i < index; i++) {
+		SinglyLinkedList_getAndNext(list, &dummy);
+	}
+
+	//새로운 노드 생성
+	SinglyLinkedList_Node* newNode = (SinglyLinkedList_Node*)malloc(sizeof(SinglyLinkedList_Node));
+	if (newNode == NULL) {
+		return False;
+	}
+	newNode->value = data;
+	newNode->next = list->cur;
+
+	list->cur = newNode;
+	list->before->next = newNode;
+
+	list->length++;
+	return True;
+	
 }
 
 /*
@@ -192,18 +232,73 @@ int SinglyLinkedList_getAndNext(SinglyLinkedList* list, SLL_Data* result) {
 
 /*
 * index의 값을 두번째 매개변수에 담아서 전달
+* index는 0을 포함한다.
+* cur는 색인된 index 다음 node를 가르킨다.
 * 반환값: 0(실패) , 1(성공)
 */
 int SinglyLinkedList_getIndex(SinglyLinkedList* list, SLL_Data* result, unsigned int index) {
 	//구현 필요
+
+	if (index > list->length - 1) { //인덱스가 범위를 벗어났다면, length가 0이라면
+		return False;
+	}
+
+	SinglyLinkedList_curFirst(list);
+	
+	SinglyLinkedList_getAndNext(list, result);
+
+	for (int i = 0; i < index; i++) {
+		SinglyLinkedList_getAndNext(list, result);
+	}
+
+	return True;
 }
+
 
 /*
 * index 노드의 값을 설정
+* cur는 index 다음 node를 가르킨다.
 * 반환값: 0(실패) , 1(성공)
 */
-int SinglyLinkedList_setIndex(SinglyLinkedList* list, SLL_Data* result) {
-	//구현 필요
+int SinglyLinkedList_setIndex(SinglyLinkedList* list, SLL_Data data, unsigned int index) {
+	
+	SLL_Data dummy;
+	
+	if (SinglyLinkedList_getIndex(list, &dummy, index) == False) {	//인덱스가 범위를 벗어났다면, length가 0이라면
+		return False;
+	}
+	
+	//index가 첫 노드였을 때
+	if (index == 0) {
+		list->head->value = data;
+		return True;
+	}
+
+	//index가 끝 노드 였을 때
+	if (index == list->length - 1) {
+		list->tail->value = data;
+		return True;
+	}
+
+	//중간일 때
+
+	list->before->value = data;
+	return True;
+
+}
+
+/*
+* cur가 가르키는 노드의 값 수정
+* 반환값: 0(실패) , 1(성공)
+*/
+int SinglyLinkedList_setCur(SinglyLinkedList* list, SLL_Data data) {
+
+	if (list->cur == NULL) {
+		return False;
+	}
+
+	list->cur->value = data;
+	return True;
 }
 
 /*
@@ -221,8 +316,7 @@ int SinglyLinkedList_curFirst(SinglyLinkedList* list) {
 }
 
 /*
-* 연결리스트의 모든 노트를 출력한다.
-* 반환값: 0(실패) , 1(성공)
+* 연결리스트의 모든 노트를 printf로 출력한다.
 */
 void SinglyLinkedList_prt(SinglyLinkedList* list) {
 

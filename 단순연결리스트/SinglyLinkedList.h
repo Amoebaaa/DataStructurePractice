@@ -20,8 +20,6 @@ typedef struct {
 	unsigned int length;	//노드의 개수
 				//메모리 한계 때문에 int로 만들어도 충분하다.
 	
-	int (*cmp)(SLL_Data, SLL_Data);	//비교 기준 함수
-
 } SinglyLinkedList;
 
 
@@ -39,8 +37,9 @@ int SinglyLinkedList_Ladd(SinglyLinkedList* list, SLL_Data data);
 
 /*
 * tail에 node를 추가하는 함수 (left add)
+* 반환값: 실패 시 0, 성공 시 1
 */
-void SinglyLinkedList_Radd(SinglyLinkedList* list, SLL_Data data);
+int SinglyLinkedList_Radd(SinglyLinkedList* list, SLL_Data data);
 
 
 /*
@@ -79,5 +78,36 @@ int SinglyLinkedList_curFirst(SinglyLinkedList* list);
 * 반환값: 0(실패) , 1(성공)
 */
 void SinglyLinkedList_prt(SinglyLinkedList* list);
+
+
+/*
+* index의 값을 두번째 매개변수에 담아서 전달
+* index는 0을 포함한다.
+* cur는 색인된 index 다음 node를 가르킨다.
+* 반환값: 0(실패) , 1(성공)
+*/
+int SinglyLinkedList_getIndex(SinglyLinkedList* list, SLL_Data* result, unsigned int index);
+
+
+/*
+* cur가 가르키는 노드의 값 수정
+* 반환값: 0(실패) , 1(성공)
+*/
+int SinglyLinkedList_setCur(SinglyLinkedList* list, SLL_Data data);
+
+/*
+* index 노드의 값을 설정
+* cur index 다음 node를 가르킨다.
+* 반환값: 0(실패) , 1(성공)
+*/
+int SinglyLinkedList_setIndex(SinglyLinkedList* list, SLL_Data data, unsigned int index);
+
+
+/*
+* n번째 index에 node를 삽입하는 함수 (0 포함)
+* cur는 해당 노드를 가르킨다.
+* 반환값: 0(실패) , 1(성공)
+*/
+int SinglyLinkedList_insert(SinglyLinkedList* list, SLL_Data data, unsigned int index);
 
 #endif
