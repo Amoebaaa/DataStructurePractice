@@ -28,7 +28,7 @@ void SinglyLinkedList_Init(SinglyLinkedList* list) {
 */
 int SinglyLinkedList_Ladd(SinglyLinkedList* list, SLL_Data data) {
 	
-	
+
 	//새로운 노드 생성 및 값 대입
 	SinglyLinkedList_Node* newNode = (SinglyLinkedList_Node*)malloc(sizeof(SinglyLinkedList_Node));
 	if (newNode == NULL) {
@@ -53,7 +53,30 @@ int SinglyLinkedList_Ladd(SinglyLinkedList* list, SLL_Data data) {
 * tail에 node를 추가하는 함수 (left add)
 */
 void SinglyLinkedList_Radd(SinglyLinkedList* list, SLL_Data data) {
-	//구현 필요		
+	//새로운 노드 생성 및 값 대입
+	SinglyLinkedList_Node* newNode = (SinglyLinkedList_Node*)malloc(sizeof(SinglyLinkedList_Node));
+	if (newNode == NULL) {
+		return False;
+	}
+	newNode->value = data;
+	newNode->next = NULL;
+	//비어있다면
+	//cur, tail, head 초기화
+	if (list->length == 0) {
+		list->cur = newNode;
+		list->head = newNode;
+	}
+
+
+	//비어있지않았다면
+	//기존의 끝 노드가 새로운 노드 가르키기
+	else {
+		list->tail->next = newNode;
+	}
+
+	list->tail = newNode;
+	list->length++;
+	return True;
 }
 
 /*
@@ -69,8 +92,50 @@ void SinglyLinkedList_CmpInsert(SinglyLinkedList* list, SLL_Data data) {
 * 실패요인: 가르키는 노드가 없는 경우
 */
 SLL_Data SinglyLinkedList_delete(SinglyLinkedList* list) {
-	//구현 필요		
-	//free해줄 것
+	
+	SLL_Data deletedData = 0;
+
+	//가르키는게 없었다면
+	if (list->cur == NULL) {
+		return deletedData;
+	}
+
+	//노드가 하나밖에 없는 경우
+	if (list->length == 1) {
+		list->head = NULL;
+		list->before = NULL;
+
+		deletedData = list->cur->value;
+		free(list->cur);
+		list->cur = NULL;
+		list->length--;
+		return deletedData;
+	}
+
+
+	//노드가 2개 이상이지만 cur가 맨 처음일 경우
+	if (list->head == list->cur) {
+		
+		list->head = list->cur->next;
+
+		deletedData = list->cur->value;
+		free(list->cur);
+		list->cur = list->head;
+		list->length--;
+		return deletedData;
+	}
+
+	//그외의 경우	
+
+	list->before->next = list->cur->next;
+
+	deletedData = list->cur->value;
+	free(list->cur);
+	
+	list->cur = list->before->next;
+	list->length--;
+	return deletedData;
+
 }
 
 /*
@@ -96,20 +161,31 @@ int SinglyLinkedList_get(SinglyLinkedList* list, SLL_Data* result) {
 }
 
 /*
-* cur의 다음 값을 두번째 매개변수에 담아서 전달
+* cur의 현재 값을 두번째 매개변수에 전달 후 cur를 다음 노드로 옮긴다.
+* 다음 값이 없다면 cur를 옮기지 않는다.
 * 반환값: 0(실패) , 1(성공)
+* 다음 노드가 없거나 현재 노드가 없다면 실패
 */
-int SinglyLinkedList_getnext(SinglyLinkedList* list, SLL_Data* result) {
-	//구현 필요
+int SinglyLinkedList_getAndNext(SinglyLinkedList* list, SLL_Data* result) {
+
+	if (!SinglyLinkedList_get(list, result)) { //실패 시
+		return False;
+	}
+	
+
+	//cur를 다음 노드로 옮기기
+
+
 
 	if (list->cur->next == NULL) {	//다음 노드가 없다면
 		return False;
 	}
 
+	//다음 노드가 있다면
+
 	list->before = list->cur;
 	list->cur = list->cur->next;
 
-	*result = list->cur->value;
 	return True;
 }
 
@@ -144,23 +220,17 @@ int SinglyLinkedList_curFirst(SinglyLinkedList* list) {
 	return True;
 }
 
-int main() {
-	
-	SinglyLinkedList s;
+/*
+* 연결리스트의 모든 노트를 출력한다.
+* 반환값: 0(실패) , 1(성공)
+*/
+void SinglyLinkedList_prt(SinglyLinkedList* list) {
+
+	SinglyLinkedList_curFirst(list);
 	SLL_Data value;
-	SinglyLinkedList_Init(&s);
-	SinglyLinkedList_Ladd(&s, 3);
-	SinglyLinkedList_Ladd(&s, 4);
-	SinglyLinkedList_Ladd(&s, 5);
-	SinglyLinkedList_curFirst(&s);
-
-	SinglyLinkedList_get(&s, &value);
-	printf("%d\n", value);
-	SinglyLinkedList_getnext(&s, &value);
-	printf("%d\n", value);
-
-	SinglyLinkedList_getnext(&s, &value);
-	printf("%d\n", value);
-
-	
+	while (SinglyLinkedList_getAndNext(list, &value)) {
+		printf("%d ", value);
+	}
+	printf("%d ", value);
+	printf("\nlength: %d\n", list->length);
 }
