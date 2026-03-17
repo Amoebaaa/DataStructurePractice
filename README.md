@@ -1,2 +1,2 @@
 # DataStructurePractice
-자료구조 연습
+C를 통한 자료구조 구현
